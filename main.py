@@ -11,181 +11,88 @@ class Character:
         return self.value
 
 
-class Node:
-    def __init__(self, data: Character):
-        self.data = data
-        self.next = None
-        self.prev = None
-
-
 class DoubleLinkedList:
     def __init__(self):
-        self.head = None
-        self.tail = None
-        self.size = 0
+        self.items = []
 
     def length(self) -> int:
-        return self.size
+        return len(self.items)
 
     def append(self, element: Character) -> None:
-        new_node = Node(element)
-        if not self.head:
-            self.head = new_node
-            self.tail = new_node
-        else:
-            self.tail.next = new_node
-            new_node.prev = self.tail
-            self.tail = new_node
-        self.size += 1
+        self.items.append(element)
 
     def insert(self, element: Character, index: int) -> None:
-        if index < 0 or index > self.size:
+        if index < 0 or index > len(self.items):
             raise IndexError("Index out of bounds")
-        new_node = Node(element)
-        if index == 0:
-            new_node.next = self.head
-            if self.head:
-                self.head.prev = new_node
-            self.head = new_node
-            if self.size == 0:
-                self.tail = new_node
-        elif index == self.size:
-            self.append(element)
-        else:
-            current = self.head
-            for _ in range(index):
-                current = current.next
-            new_node.next = current
-            new_node.prev = current.prev
-            current.prev.next = new_node
-            current.prev = new_node
-        self.size += 1
+        self.items.insert(index, element)
 
     def delete(self, index: int) -> Character:
-        if index < 0 or index >= self.size:
+        if index < 0 or index >= len(self.items):
             raise IndexError("Index out of bounds")
-        if index == 0:
-            removed = self.head
-            self.head = removed.next
-            if self.head:
-                self.head.prev = None
-        elif index == self.size - 1:
-            removed = self.tail
-            self.tail = removed.prev
-            if self.tail:
-                self.tail.next = None
-        else:
-            current = self.head
-            for _ in range(index):
-                current = current.next
-            removed = current
-            removed.prev.next = removed.next
-            if removed.next:
-                removed.next.prev = removed.prev
-        self.size -= 1
-        return removed.data
+        return self.items.pop(index)
 
     def deleteAll(self, element: Character) -> None:
-        current = self.head
-        while current:
-            if current.data == element:
-                if current.prev:
-                    current.prev.next = current.next
-                if current.next:
-                    current.next.prev = current.prev
-                if current == self.head:
-                    self.head = current.next
-                if current == self.tail:
-                    self.tail = current.prev
-                self.size -= 1
-            current = current.next
+        self.items = [item for item in self.items if item != element]
 
     def get(self, index: int) -> Character:
-        if index < 0 or index >= self.size:
+        if index < 0 or index >= len(self.items):
             raise IndexError("Index out of bounds")
-        current = self.head
-        for _ in range(index):
-            current = current.next
-        return current.data
+        return self.items[index]
 
     def clone(self) -> 'DoubleLinkedList':
         cloned_list = DoubleLinkedList()
-        current = self.head
-        while current:
-            cloned_list.append(current.data)
-            current = current.next
+        cloned_list.items = self.items[:]
         return cloned_list
 
     def reverse(self) -> None:
-        current = self.head
-        prev = None
-        self.tail = self.head
-        while current:
-            next_node = current.next
-            current.next = prev
-            current.prev = next_node
-            prev = current
-            current = next_node
-        self.head = prev
+        self.items.reverse()
 
     def findFirst(self, element: Character) -> int:
-        current = self.head
-        index = 0
-        while current:
-            if current.data == element:
-                return index
-            current = current.next
-            index += 1
-        return -1
+        try:
+            return self.items.index(element)
+        except ValueError:
+            return -1
 
     def findLast(self, element: Character) -> int:
-        current = self.tail
-        index = self.size - 1
-        while current:
-            if current.data == element:
-                return index
-            current = current.prev
-            index -= 1
-        return -1
+        try:
+            return len(self.items) - 1 - self.items[::-1].index(element)
+        except ValueError:
+            return -1
 
     def clear(self) -> None:
-        self.head = None
-        self.tail = None
-        self.size = 0
+        self.items.clear()
 
     def extend(self, elements: list) -> None:
-        for element in elements:
-            self.append(element)
+        self.items.extend(elements)
 
     def __str__(self) -> str:
-        elements = []
-        current = self.head
-        while current:
-            elements.append(str(current.data))
-            current = current.next
-        return ' <-> '.join(elements)
+        return ' <-> '.join(str(item) for item in self.items)
 
 
+# Тестування методів
 dll = DoubleLinkedList()
 
 dll.append(Character('A'))
 dll.append(Character('B'))
 dll.append(Character('C'))
-
-print(dll)
+print(dll)  # A <-> B <-> C
 
 dll.insert(Character('D'), 2)
-print(dll)
+print(dll)  # A <-> B <-> D <-> C
 
-print(dll.delete(1))
-print(dll)
+print(dll.delete(1))  # B
+print(dll)  # A <-> D <-> C
 
 dll.deleteAll(Character('D'))
-print(dll)
+print(dll)  # A <-> C
 
-print(dll.get(1))
+print(dll.get(1))  # C
+
+cloned = dll.clone()
+print(cloned)
 
 dll.reverse()
+print(dll)
 
 print(dll.findFirst(Character('A')))
 print(dll.findLast(Character('A')))
@@ -195,3 +102,4 @@ print(dll)
 
 dll.extend([Character('X'), Character('Y'), Character('Z')])
 print(dll)
+
