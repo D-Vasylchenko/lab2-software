@@ -25,7 +25,7 @@ class DoubleLinkedList:
         self.size = 0
 
     def length(self) -> int:
-        return self.size
+        return self.size + 1
 
     def append(self, element: Character) -> None:
         new_node = Node(element)
